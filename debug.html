@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Debug The0fit</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <h1>Console Debug - The0fit</h1>
+    <p>Abre la consola (F12) para ver los errores</p>
+
+    <form id="calorieForm" novalidate>
+        <div>
+            <label>Sexo</label>
+            <input type="radio" id="male" name="sexo" value="masculino" required>
+            <label for="male">Hombre</label>
+            <input type="radio" id="female" name="sexo" value="femenino" required>
+            <label for="female">Mujer</label>
+        </div>
+
+        <div>
+            <label for="edad">Edad</label>
+            <input type="number" id="edad" name="edad" min="13" max="120" placeholder="25" required>
+        </div>
+
+        <div>
+            <label for="peso">Peso (kg)</label>
+            <input type="number" id="peso" name="peso" min="30" max="300" step="0.1" placeholder="70" required>
+        </div>
+
+        <div>
+            <label for="altura">Altura (cm)</label>
+            <input type="number" id="altura" name="altura" min="100" max="250" step="0.1" placeholder="175" required>
+        </div>
+
+        <div>
+            <label>Actividad</label>
+            <input type="radio" name="actividad" value="sedentario" required>
+            <label>Sedentario</label>
+            <input type="radio" name="actividad" value="ligero" required>
+            <label>Ligero</label>
+            <input type="radio" name="actividad" value="moderado" required>
+            <label>Moderado</label>
+            <input type="radio" name="actividad" value="activo" required>
+            <label>Activo</label>
+            <input type="radio" name="actividad" value="muyactivo" required>
+            <label>Muy Activo</label>
+        </div>
+
+        <button type="submit">Calcular</button>
+    </form>
+
+    <div id="calorieModal" class="modal" style="display:none; border: 1px solid red; padding: 20px; margin-top: 20px;">
+        <h2>Resultado</h2>
+        <p>TDEE: <span id="maintenanceCalories">0</span></p>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Test logging
+        console.log("=== DEBUG INICIADO ===");
+        console.log("setupCalorieCalculator existe?", typeof setupCalorieCalculator);
+        console.log("handleCalorieSubmit existe?", typeof handleCalorieSubmit);
+        console.log("validarCalorie existe?", typeof validarCalorie);
+
+        const form = document.getElementById('calorieForm');
+        console.log("Formulario encontrado?", !!form);
+
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                console.log("SUBMIT DISPARADO");
+                console.log("Event:", e);
+                e.preventDefault();
+                console.log("preventDefault ejecutado");
+
+                console.log("Sexo:", document.querySelector('input[name="sexo"]:checked')?.value);
+                console.log("Edad:", document.getElementById('edad').value);
+                console.log("Peso:", document.getElementById('peso').value);
+                console.log("Altura:", document.getElementById('altura').value);
+                console.log("Actividad:", document.querySelector('input[name="actividad"]:checked')?.value);
+
+                console.log("Validando...");
+                const esValido = validarCalorie();
+                console.log("Válido?", esValido);
+
+                if (esValido) {
+                    console.log("Llamando handleCalorieSubmit...");
+                    handleCalorieSubmit(e);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

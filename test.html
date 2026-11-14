@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Formulario Calorías</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        form { border: 1px solid #ccc; padding: 20px; margin: 20px 0; }
+        .result { border: 2px solid green; padding: 20px; margin-top: 20px; display: none; }
+        .result.active { display: block; }
+        input, label { display: block; margin: 10px 0; }
+        button { padding: 10px 20px; font-size: 16px; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Test: Calcular Calorías</h1>
+
+    <form id="calorieForm" novalidate>
+        <div>
+            <label>Sexo:</label>
+            <input type="radio" id="male" name="sexo" value="masculino" required>
+            <label for="male">Hombre</label>
+            <input type="radio" id="female" name="sexo" value="femenino" required>
+            <label for="female">Mujer</label>
+            <span class="error" id="sexoError"></span>
+        </div>
+
+        <div>
+            <label for="edad">Edad:</label>
+            <input type="number" id="edad" name="edad" min="13" max="120" value="25" required>
+            <span class="error" id="edadError"></span>
+        </div>
+
+        <div>
+            <label for="peso">Peso (kg):</label>
+            <input type="number" id="peso" name="peso" min="30" max="300" step="0.1" value="70" required>
+            <span class="error" id="pesoError"></span>
+        </div>
+
+        <div>
+            <label for="altura">Altura (cm):</label>
+            <input type="number" id="altura" name="altura" min="100" max="250" step="0.1" value="175" required>
+            <span class="error" id="alturaError"></span>
+        </div>
+
+        <div>
+            <label>Nivel de Actividad:</label>
+            <input type="radio" name="actividad" value="sedentario" required>
+            <label>Sedentario</label>
+            <input type="radio" name="actividad" value="ligero" required>
+            <label>Ligero</label>
+            <input type="radio" name="actividad" value="moderado" checked required>
+            <label>Moderado</label>
+            <input type="radio" name="actividad" value="activo" required>
+            <label>Activo</label>
+            <input type="radio" name="actividad" value="muyactivo" required>
+            <label>Muy Activo</label>
+            <span class="error" id="actividadError"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Calcular</button>
+    </form>
+
+    <div id="calorieModal" class="result">
+        <h2>Resultado</h2>
+        <p><strong>TDEE (Calorías Diarias):</strong> <span id="maintenanceCalories">0</span> cal</p>
+        <p><strong>BMR:</strong> <span id="maintenanceBMR">0</span> cal</p>
+        <p><strong>Proteínas:</strong> <span id="maintenanceProtein">0</span>g</p>
+        <p><strong>Carbohidratos:</strong> <span id="maintenanceCarbs">0</span>g</p>
+        <p><strong>Grasas:</strong> <span id="maintenanceFats">0</span>g</p>
+    </div>
+
+    <script>
+        const ACTIVITY_FACTORS = {
+            sedentario: 1.2,
+            ligero: 1.375,
+            moderado: 1.55,
+            activo: 1.725,
+            muyactivo: 1.9,
+        };
+
+        function calcularBMR(peso, altura, edad, sexo) {
+            if (sexo === 'masculino') {
+                return (10 * peso) + (6.25 * altura) - (5 * edad) + 5;
+            } else {
+                return (10 * peso) + (6.25 * altura) - (5 * edad) - 161;
+            }
+        }
+
+        function calcularMacros(tdee, peso) {
+            const proteinaG = peso * 2;
+            const proteinaCal = proteinaG * 4;
+            const grasasG = peso * 0.9;
+            const grasasCal = grasasG * 9;
+            const carbohidratosCal = tdee - proteinaCal - grasasCal;
+            const carbohidratosG = carbohidratosCal / 4;
+
+            return {
+                proteina: { g: Math.round(proteinaG), cal: Math.round(proteinaCal) },
+                carbohidratos: { g: Math.round(carbohidratosG), cal: Math.round(carbohidratosCal) },
+                grasas: { g: Math.round(grasasG), cal: Math.round(grasasCal) },
+            };
+        }
+
+        function validarCalorie() {
+            let valido = true;
+            document.querySelectorAll('.error').forEach(el => el.textContent = '');
+
+            if (!document.querySelector('input[name="sexo"]:checked')) {
+                document.getElementById('sexoError').textContent = 'Por favor selecciona un sexo';
+                valido = false;
+            }
+
+            const edad = parseFloat(document.getElementById('edad').value);
+            if (!edad || edad < 13 || edad > 120) {
+                document.getElementById('edadError').textContent = 'Edad debe estar entre 13 y 120 años';
+                valido = false;
+            }
+
+            const peso = parseFloat(document.getElementById('peso').value);
+            if (!peso || peso < 30 || peso > 300) {
+                document.getElementById('pesoError').textContent = 'Peso debe estar entre 30 y 300';
+                valido = false;
+            }
+
+            const altura = parseFloat(document.getElementById('altura').value);
+            if (!altura || altura < 100 || altura > 250) {
+                document.getElementById('alturaError').textContent = 'Altura debe estar entre 100 y 250';
+                valido = false;
+            }
+
+            if (!document.querySelector('input[name="actividad"]:checked')) {
+                document.getElementById('actividadError').textContent = 'Por favor selecciona un nivel de actividad';
+                valido = false;
+            }
+
+            return valido;
+        }
+
+        function handleCalorieSubmit(e) {
+            e.preventDefault();
+            console.log('Submit disparado');
+
+            if (!validarCalorie()) {
+                console.log('Validación falló');
+                return;
+            }
+
+            console.log('Validación pasó');
+
+            const sexo = document.querySelector('input[name="sexo"]:checked').value;
+            const peso = parseFloat(document.getElementById('peso').value);
+            const altura = parseFloat(document.getElementById('altura').value);
+            const edad = parseFloat(document.getElementById('edad').value);
+            const actividad = document.querySelector('input[name="actividad"]:checked').value;
+
+            console.log('Datos:', { sexo, peso, altura, edad, actividad });
+
+            const bmr = calcularBMR(peso, altura, edad, sexo);
+            const tdee = bmr * ACTIVITY_FACTORS[actividad];
+            const macros = calcularMacros(tdee, peso);
+
+            console.log('Resultado:', { bmr, tdee, macros });
+
+            document.getElementById('maintenanceCalories').textContent = Math.round(tdee);
+            document.getElementById('maintenanceBMR').textContent = Math.round(bmr);
+            document.getElementById('maintenanceProtein').textContent = macros.proteina.g;
+            document.getElementById('maintenanceCarbs').textContent = macros.carbohidratos.g;
+            document.getElementById('maintenanceFats').textContent = macros.grasas.g;
+
+            document.getElementById('calorieModal').classList.add('active');
+            console.log('Modal abierto');
+        }
+
+        document.getElementById('calorieForm').addEventListener('submit', handleCalorieSubmit);
+    </script>
+</body>
+</html>

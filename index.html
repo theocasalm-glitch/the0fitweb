@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The0fit - Calculadoras de fitness profesionales: Calorías, IMC e Hidratación. Cálculos precisos basados en fórmulas científicas.">
+    <meta property="og:title" content="The0fit - Tu Compañero de Fitness">
+    <meta property="og:description" content="Calcula calorías, IMC y necesidades de hidratación con precisión científica.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#FFD700">
+    <title>The0fit - Calculadoras Fitness Profesionales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- ====== NAVEGACIÓN GLOBAL ====== -->
+    <nav class="global-nav">
+        <div class="nav-container">
+            <div class="nav-logo" onclick="goToHome()" style="cursor: pointer;">
+                <div class="logo-icon" data-lucide="zap"></div>
+                <span class="nav-logo-text">The0fit</span>
+            </div>
+
+            <div class="nav-switcher">
+                <button class="nav-btn nav-btn-active" data-screen="home" onclick="goToCalculator('home')">
+                    <div class="icon" data-lucide="home"></div>
+                    Inicio
+                </button>
+                <button class="nav-btn" data-screen="calories" onclick="goToCalculator('calories')">
+                    <div class="icon" data-lucide="flame"></div>
+                    Calorías
+                </button>
+                <button class="nav-btn" data-screen="imc" onclick="goToCalculator('imc')">
+                    <div class="icon" data-lucide="scale"></div>
+                    IMC
+                </button>
+                <button class="nav-btn" data-screen="hydration" onclick="goToCalculator('hydration')">
+                    <div class="icon" data-lucide="droplet"></div>
+                    Hidratación
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="app-container">
+        <!-- ====== PANTALLA DE INICIO ====== -->
+        <section id="homeScreen" class="screen active">
+            <header class="home-header">
+                <h1 class="home-title">The0fit</h1>
+                <p class="home-subtitle">Tu compañero de fitness personalizado</p>
+
+                <!-- Resumen rápido si hay datos guardados -->
+                <div class="quick-summary" id="quickSummary" style="display: none;">
+                    <div class="summary-badge">
+                        <span class="summary-label">Tu último cálculo:</span>
+                        <span class="summary-value" id="summaryValue">-</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="calculators-grid">
+                <div class="calculator-option calorie-option" onclick="goToCalculator('calories')">
+                    <div class="option-header">
+                        <div class="option-icon" data-lucide="flame"></div>
+                        <div class="option-arrow" data-lucide="arrow-right"></div>
+                    </div>
+                    <h2 class="option-title">Calorías & Macros</h2>
+                    <p class="option-description">Calcula tus calorías diarias, BMR y macronutrientes personalizados</p>
+                    <div class="option-features">
+                        <span class="feature-tag">Mifflin-St Jeor</span>
+                        <span class="feature-tag">3 Objetivos</span>
+                    </div>
+                </div>
+
+                <div class="calculator-option imc-option" onclick="goToCalculator('imc')">
+                    <div class="option-header">
+                        <div class="option-icon" data-lucide="scale"></div>
+                        <div class="option-arrow" data-lucide="arrow-right"></div>
+                    </div>
+                    <h2 class="option-title">IMC</h2>
+                    <p class="option-description">Calcula tu Índice de Masa Corporal y conoce tu categoría de peso</p>
+                    <div class="option-features">
+                        <span class="feature-tag">Categorías OMS</span>
+                        <span class="feature-tag">Rango Saludable</span>
+                    </div>
+                </div>
+
+                <div class="calculator-option hydration-option" onclick="goToCalculator('hydration')">
+                    <div class="option-header">
+                        <div class="option-icon" data-lucide="droplet"></div>
+                        <div class="option-arrow" data-lucide="arrow-right"></div>
+                    </div>
+                    <h2 class="option-title">Hidratación</h2>
+                    <p class="option-description">Calcula tu consumo diario recomendado de agua según tu actividad</p>
+                    <div class="option-features">
+                        <span class="feature-tag">Fórmula Científica</span>
+                        <span class="feature-tag">Personalizado</span>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="home-footer">
+                <p>⚠️ <strong>Disclaimer:</strong> Los cálculos son estimaciones informativas. Consulta con profesionales médicos para recomendaciones personalizadas.</p>
+            </footer>
+        </section>
+
+        <!-- ====== CALCULADORA DE CALORÍAS ====== -->
+        <section id="calorieScreen" class="screen">
+            <main class="main-container">
+                <div class="calculator-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <div class="title-icon" data-lucide="flame"></div>
+                            Calorías & Macros
+                        </h2>
+                        <div class="units-toggle-new">
+                            <button class="unit-btn active" data-unit="metric" onclick="toggleCalorieUnitsNew('metric')">kg/cm</button>
+                            <button class="unit-btn" data-unit="imperial" onclick="toggleCalorieUnitsNew('imperial')">lbs/in</button>
+                        </div>
+                    </div>
+
+                    <form id="calorieForm" novalidate>
+                        <div class="form-grid">
+                            <!-- Sexo -->
+                            <div class="form-group full-width">
+                                <label class="form-label">Sexo</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="male" name="sexo" value="masculino" required>
+                                        <label for="male" class="radio-label">Hombre</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="female" name="sexo" value="femenino" required>
+                                        <label for="female" class="radio-label">Mujer</label>
+                                    </div>
+                                </div>
+                                <span class="error-message" id="sexoError"></span>
+                            </div>
+
+                            <!-- Edad -->
+                            <div class="form-group">
+                                <label for="edad" class="form-label">Edad</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="edad" name="edad" min="13" max="120" placeholder="25" required>
+                                    <span class="input-unit">años</span>
+                                </div>
+                                <span class="error-message" id="edadError"></span>
+                            </div>
+
+                            <!-- Peso -->
+                            <div class="form-group">
+                                <label for="peso" class="form-label">Peso</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="peso" name="peso" min="30" max="300" step="0.1" placeholder="70" required>
+                                    <span class="input-unit" id="pesoUnit">kg</span>
+                                </div>
+                                <span class="error-message" id="pesoError"></span>
+                            </div>
+
+                            <!-- Altura -->
+                            <div class="form-group">
+                                <label for="altura" class="form-label">Altura</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="altura" name="altura" min="100" max="250" step="0.1" placeholder="175" required>
+                                    <span class="input-unit" id="alturaUnit">cm</span>
+                                </div>
+                                <span class="error-message" id="alturaError"></span>
+                            </div>
+
+                            <!-- Actividad - Tarjetas Visuales -->
+                            <div class="form-group full-width">
+                                <label class="form-label">Nivel de Actividad</label>
+                                <div class="activity-cards">
+                                    <label class="activity-card">
+                                        <input type="radio" name="actividad" value="sedentario" required>
+                                        <div class="activity-label">Sedentario</div>
+                                        <div class="activity-desc">0-2 días/sem</div>
+                                    </label>
+                                    <label class="activity-card">
+                                        <input type="radio" name="actividad" value="ligero" required>
+                                        <div class="activity-label">Ligero</div>
+                                        <div class="activity-desc">1-3 días/sem</div>
+                                    </label>
+                                    <label class="activity-card">
+                                        <input type="radio" name="actividad" value="moderado" required>
+                                        <div class="activity-label">Moderado</div>
+                                        <div class="activity-desc">3-5 días/sem</div>
+                                    </label>
+                                    <label class="activity-card">
+                                        <input type="radio" name="actividad" value="activo" required>
+                                        <div class="activity-label">Activo</div>
+                                        <div class="activity-desc">6-7 días/sem</div>
+                                    </label>
+                                    <label class="activity-card">
+                                        <input type="radio" name="actividad" value="muyactivo" required>
+                                        <div class="activity-label">Muy Activo</div>
+                                        <div class="activity-desc">Intenso</div>
+                                    </label>
+                                </div>
+                                <span class="error-message" id="actividadError"></span>
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-primary">Calcular</button>
+                            <button type="reset" class="btn btn-secondary">Limpiar</button>
+                        </div>
+                    </form>
+
+                    <!-- Cómo funciona - Accordion -->
+                    <details class="accordion">
+                        <summary class="accordion-title">
+                            <div class="accordion-icon" data-lucide="help-circle"></div>
+                            ¿Cómo funciona?
+                        </summary>
+                        <div class="how-steps accordion-content">
+                            <div class="how-step">
+                                <span class="step-badge">1</span>
+                                <p><strong>BMR:</strong> Calorías en reposo usando Mifflin-St Jeor</p>
+                            </div>
+                            <div class="how-step">
+                                <span class="step-badge">2</span>
+                                <p><strong>TDEE:</strong> Multiplicamos por tu nivel de actividad</p>
+                            </div>
+                            <div class="how-step">
+                                <span class="step-badge">3</span>
+                                <p><strong>Macros:</strong> Proteínas, grasas y carbos personalizados</p>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </main>
+        </section>
+
+        <!-- ====== CALCULADORA DE IMC ====== -->
+        <section id="imcScreen" class="screen">
+            <main class="main-container">
+                <div class="calculator-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <div class="title-icon" data-lucide="scale"></div>
+                            Índice de Masa Corporal
+                        </h2>
+                        <div class="units-toggle-new">
+                            <button class="unit-btn active" data-unit="metric" onclick="toggleIMCUnitsNew('metric')">kg/cm</button>
+                            <button class="unit-btn" data-unit="imperial" onclick="toggleIMCUnitsNew('imperial')">lbs/in</button>
+                        </div>
+                    </div>
+
+                    <form id="imcForm" novalidate>
+                        <div class="form-grid">
+                            <!-- Peso IMC -->
+                            <div class="form-group">
+                                <label for="imcPeso" class="form-label">Peso</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="imcPeso" name="imcPeso" min="30" max="300" step="0.1" placeholder="70" required>
+                                    <span class="input-unit" id="imcPesoUnit">kg</span>
+                                </div>
+                                <span class="error-message" id="imcPesoError"></span>
+                            </div>
+
+                            <!-- Altura IMC -->
+                            <div class="form-group">
+                                <label for="imcAltura" class="form-label">Altura</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="imcAltura" name="imcAltura" min="100" max="250" step="0.1" placeholder="175" required>
+                                    <span class="input-unit" id="imcAlturaUnit">cm</span>
+                                </div>
+                                <span class="error-message" id="imcAlturaError"></span>
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-primary">Calcular IMC</button>
+                            <button type="reset" class="btn btn-secondary">Limpiar</button>
+                        </div>
+                    </form>
+
+                    <!-- Cómo funciona IMC - Accordion -->
+                    <details class="accordion">
+                        <summary class="accordion-title">
+                            <div class="accordion-icon" data-lucide="help-circle"></div>
+                            ¿Cómo funciona?
+                        </summary>
+                        <div class="how-steps accordion-content">
+                            <div class="how-step">
+                                <span class="step-badge">1</span>
+                                <p><strong>Fórmula:</strong> IMC = Peso(kg) / Altura(m)²</p>
+                            </div>
+                            <div class="how-step">
+                                <span class="step-badge">2</span>
+                                <p><strong>Categoría:</strong> Clasificación según estándares OMS</p>
+                            </div>
+                            <div class="how-step">
+                                <span class="step-badge">3</span>
+                                <p><strong>Consejo:</strong> Recomendaciones personalizadas</p>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </main>
+        </section>
+
+        <!-- ====== CALCULADORA DE HIDRATACIÓN ====== -->
+        <section id="hydrationScreen" class="screen">
+            <main class="main-container">
+                <div class="calculator-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <div class="title-icon" data-lucide="droplet"></div>
+                            Hidratación Diaria
+                        </h2>
+                        <div class="units-toggle-new">
+                            <button class="unit-btn active" data-unit="metric" onclick="toggleHydrationUnitsNew('metric')">kg</button>
+                            <button class="unit-btn" data-unit="imperial" onclick="toggleHydrationUnitsNew('imperial')">lbs</button>
+                        </div>
+                    </div>
+
+                    <form id="hydrationForm" novalidate>
+                        <div class="form-grid">
+                            <!-- Peso Hidratación -->
+                            <div class="form-group">
+                                <label for="hydrationPeso" class="form-label">Peso</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="hydrationPeso" name="hydrationPeso" min="30" max="300" step="0.1" placeholder="70" required>
+                                    <span class="input-unit" id="hydrationPesoUnit">kg</span>
+                                </div>
+                                <span class="error-message" id="hydrationPesoError"></span>
+                            </div>
+
+                            <!-- Actividad Hidratación -->
+                            <div class="form-group full-width">
+                                <label class="form-label">Nivel de Actividad</label>
+                                <div class="activity-cards">
+                                    <label class="activity-card">
+                                        <input type="radio" name="hydrationActividad" value="sedentario" required>
+                                        <div class="activity-label">Sedentario</div>
+                                        <div class="activity-desc">Bajo</div>
+                                    </label>
+                                    <label class="activity-card">
+                                        <input type="radio" name="hydrationActividad" value="ligero" required>
+                                        <div class="activity-label">Ligero</div>
+                                        <div class="activity-desc">Moderado</div>
+                                    </label>
+                                    <label class="activity-card">
+                                        <input type="radio" name="hydrationActividad" value="moderado" required>
+                                        <div class="activity-label">Moderado</div>
+                                        <div class="activity-desc">Alto</div>
+                                    </label>
+                                    <label class="activity-card">
+                                        <input type="radio" name="hydrationActividad" value="intenso" required>
+                                        <div class="activity-label">Intenso</div>
+                                        <div class="activity-desc">Muy Alto</div>
+                                    </label>
+                                </div>
+                                <span class="error-message" id="hydrationActividadError"></span>
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-primary">Calcular</button>
+                            <button type="reset" class="btn btn-secondary">Limpiar</button>
+                        </div>
+                    </form>
+
+                    <!-- Cómo funciona Hidratación - Accordion -->
+                    <details class="accordion">
+                        <summary class="accordion-title">
+                            <div class="accordion-icon" data-lucide="help-circle"></div>
+                            ¿Cómo funciona?
+                        </summary>
+                        <div class="how-steps accordion-content">
+                            <div class="how-step">
+                                <span class="step-badge">1</span>
+                                <p><strong>Base:</strong> 35 ml x kg de peso corporal</p>
+                            </div>
+                            <div class="how-step">
+                                <span class="step-badge">2</span>
+                                <p><strong>Actividad:</strong> Se ajusta según tu nivel de ejercicio</p>
+                            </div>
+                            <div class="how-step">
+                                <span class="step-badge">3</span>
+                                <p><strong>Recomendación:</strong> Liters recomendados al día</p>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </main>
+        </section>
+    </div>
+
+    <!-- Modal de Resultado Calorías -->
+    <div class="modal-overlay" id="calorieModal">
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Cerrar" onclick="cerrarModal('calorie')">
+                <div data-lucide="x"></div>
+            </button>
+
+            <div class="result-header">
+                <h2 class="result-title">Tu Plan Personalizado</h2>
+                <div class="result-actions">
+                    <button class="btn-icon" title="Copiar al portapapeles" onclick="copiarPlan('calorie')">
+                        <div data-lucide="copy"></div>
+                    </button>
+                    <button class="btn-icon" title="Compartir" onclick="compartirPlan('calorie')">
+                        <div data-lucide="share-2"></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabs Calorías -->
+            <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="mantenimiento" onclick="cambiarTab(event, 'calorie')">Mantenimiento</button>
+                    <button class="tab-btn" data-tab="definicion" onclick="cambiarTab(event, 'calorie')">Definición</button>
+                    <button class="tab-btn" data-tab="volumen" onclick="cambiarTab(event, 'calorie')">Volumen</button>
+                </div>
+            </div>
+
+            <!-- Contenido Tabs Calorías -->
+            <div class="tabs-content">
+                <!-- Mantenimiento -->
+                <div class="tab-pane active" data-tab-pane="mantenimiento">
+                    <div class="metric-box">
+                        <div class="metric-label">TDEE (Calorías Diarias)</div>
+                        <div class="metric-value" id="maintenanceCalories">0</div>
+                        <div class="metric-description">Calorías para mantener tu peso</div>
+                    </div>
+
+                    <div class="macros-grid">
+                        <div class="macro-card protein">
+                            <div class="macro-header">
+                                <span class="macro-name">Proteínas</span>
+                                <span class="macro-percentage">30%</span>
+                            </div>
+                            <div class="macro-value" id="maintenanceProtein">0g</div>
+                            <div class="macro-calories" id="maintenanceProteinCal">0 cal</div>
+                        </div>
+
+                        <div class="macro-card carbs">
+                            <div class="macro-header">
+                                <span class="macro-name">Carbohidratos</span>
+                                <span class="macro-percentage">45%</span>
+                            </div>
+                            <div class="macro-value" id="maintenanceCarbs">0g</div>
+                            <div class="macro-calories" id="maintenanceCarbsCal">0 cal</div>
+                        </div>
+
+                        <div class="macro-card fats">
+                            <div class="macro-header">
+                                <span class="macro-name">Grasas</span>
+                                <span class="macro-percentage">25%</span>
+                            </div>
+                            <div class="macro-value" id="maintenanceFats">0g</div>
+                            <div class="macro-calories" id="maintenanceFatsCal">0 cal</div>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <p><strong>BMR (Metabolismo Basal):</strong> <span id="maintenanceBMR">0</span> cal/día</p>
+                        <p><strong>Factor de Actividad:</strong> <span id="maintenanceActivity">-</span></p>
+                    </div>
+                </div>
+
+                <!-- Definición -->
+                <div class="tab-pane" data-tab-pane="definicion">
+                    <div class="metric-box">
+                        <div class="metric-label">TDEE (Calorías Diarias)</div>
+                        <div class="metric-value" id="definicionCalories">0</div>
+                        <div class="metric-description">Calorías para perder grasa (déficit -20%)</div>
+                    </div>
+
+                    <div class="macros-grid">
+                        <div class="macro-card protein">
+                            <div class="macro-header">
+                                <span class="macro-name">Proteínas</span>
+                                <span class="macro-percentage">35%</span>
+                            </div>
+                            <div class="macro-value" id="definicionProtein">0g</div>
+                            <div class="macro-calories" id="definicionProteinCal">0 cal</div>
+                        </div>
+
+                        <div class="macro-card carbs">
+                            <div class="macro-header">
+                                <span class="macro-name">Carbohidratos</span>
+                                <span class="macro-percentage">40%</span>
+                            </div>
+                            <div class="macro-value" id="definicionCarbs">0g</div>
+                            <div class="macro-calories" id="definicionCarbsCal">0 cal</div>
+                        </div>
+
+                        <div class="macro-card fats">
+                            <div class="macro-header">
+                                <span class="macro-name">Grasas</span>
+                                <span class="macro-percentage">25%</span>
+                            </div>
+                            <div class="macro-value" id="definicionFats">0g</div>
+                            <div class="macro-calories" id="definicionFatsCal">0 cal</div>
+                        </div>
+                    </div>
+
+                    <div class="info-box warning">
+                        <p>💡 Defínete comiendo 20% menos calorías. Ideal para perder grasa manteniendo músculo.</p>
+                    </div>
+                </div>
+
+                <!-- Volumen -->
+                <div class="tab-pane" data-tab-pane="volumen">
+                    <div class="metric-box">
+                        <div class="metric-label">TDEE (Calorías Diarias)</div>
+                        <div class="metric-value" id="volumenCalories">0</div>
+                        <div class="metric-description">Calorías para ganar masa (superávit +15%)</div>
+                    </div>
+
+                    <div class="macros-grid">
+                        <div class="macro-card protein">
+                            <div class="macro-header">
+                                <span class="macro-name">Proteínas</span>
+                                <span class="macro-percentage">30%</span>
+                            </div>
+                            <div class="macro-value" id="volumenProtein">0g</div>
+                            <div class="macro-calories" id="volumenProteinCal">0 cal</div>
+                        </div>
+
+                        <div class="macro-card carbs">
+                            <div class="macro-header">
+                                <span class="macro-name">Carbohidratos</span>
+                                <span class="macro-percentage">50%</span>
+                            </div>
+                            <div class="macro-value" id="volumenCarbs">0g</div>
+                            <div class="macro-calories" id="volumenCarbsCal">0 cal</div>
+                        </div>
+
+                        <div class="macro-card fats">
+                            <div class="macro-header">
+                                <span class="macro-name">Grasas</span>
+                                <span class="macro-percentage">20%</span>
+                            </div>
+                            <div class="macro-value" id="volumenFats">0g</div>
+                            <div class="macro-calories" id="volumenFatsCal">0 cal</div>
+                        </div>
+                    </div>
+
+                    <div class="info-box success">
+                        <p>💪 Aumenta calorías 15% para ganar masa. Combina con entrenamiento de fuerza.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Resultado IMC -->
+    <div class="modal-overlay" id="imcModal">
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Cerrar" onclick="cerrarModal('imc')">
+                <div data-lucide="x"></div>
+            </button>
+
+            <div class="result-header">
+                <h2 class="result-title">Tu Resultado IMC</h2>
+                <div class="result-actions">
+                    <button class="btn-icon" title="Copiar al portapapeles" onclick="copiarPlan('imc')">
+                        <div data-lucide="copy"></div>
+                    </button>
+                    <button class="btn-icon" title="Compartir" onclick="compartirPlan('imc')">
+                        <div data-lucide="share-2"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="imc-result-container">
+
+                <!-- Métrica principal -->
+                <div class="imc-metric-box">
+                    <div class="metric-label">Índice de Masa Corporal</div>
+                    <div class="metric-value imc-value" id="imcResultado">0</div>
+                    <div class="metric-description" id="imcCategoria">-</div>
+                </div>
+
+                <!-- Rango de peso saludable -->
+                <div class="healthy-range-box">
+                    <h4>Tu Rango de Peso Saludable</h4>
+                    <div class="range-value" id="imcHealthyRange">-</div>
+                </div>
+
+                <!-- Tabla OMS con fila resaltada -->
+                <div class="imc-categories">
+                    <h3>Categorías de IMC (OMS)</h3>
+                    <div class="category-row" data-category="bajo">
+                        <span class="category-name">Bajo peso</span>
+                        <span class="category-range">&lt; 18.5</span>
+                    </div>
+                    <div class="category-row" data-category="normal">
+                        <span class="category-name">Peso normal</span>
+                        <span class="category-range">18.5 - 24.9</span>
+                    </div>
+                    <div class="category-row" data-category="sobrepeso">
+                        <span class="category-name">Sobrepeso</span>
+                        <span class="category-range">25 - 29.9</span>
+                    </div>
+                    <div class="category-row" data-category="obesidad1">
+                        <span class="category-name">Obesidad Clase I</span>
+                        <span class="category-range">30 - 34.9</span>
+                    </div>
+                    <div class="category-row" data-category="obesidad2">
+                        <span class="category-name">Obesidad Clase II</span>
+                        <span class="category-range">35 - 39.9</span>
+                    </div>
+                    <div class="category-row" data-category="obesidad3">
+                        <span class="category-name">Obesidad Clase III</span>
+                        <span class="category-range">≥ 40</span>
+                    </div>
+                </div>
+
+                <div class="imc-advice" id="imcAdvice"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Resultado Hidratación -->
+    <div class="modal-overlay" id="hydrationModal">
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Cerrar" onclick="cerrarModal('hydration')">
+                <div data-lucide="x"></div>
+            </button>
+
+            <div class="result-header">
+                <h2 class="result-title">Tu Hidratación Diaria</h2>
+                <div class="result-actions">
+                    <button class="btn-icon" title="Copiar al portapapeles" onclick="copiarPlan('hydration')">
+                        <div data-lucide="copy"></div>
+                    </button>
+                    <button class="btn-icon" title="Compartir" onclick="compartirPlan('hydration')">
+                        <div data-lucide="share-2"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hydration-result-container">
+                <div class="hydration-metric-box">
+                    <div class="metric-label">Litros Recomendados por Día</div>
+                    <div class="metric-value hydration-value" id="hydrationResultado">0</div>
+                    <div class="metric-description" id="hydrationSubtitle">-</div>
+                </div>
+
+                <div class="hydration-info">
+                    <div class="info-item">
+                        <div class="info-icon" data-lucide="droplet"></div>
+                        <div class="info-text">
+                            <strong>Por hora:</strong>
+                            <span id="hydrationPerHour">-</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon" data-lucide="clock"></div>
+                        <div class="info-text">
+                            <strong>Vasos (250ml):</strong>
+                            <span id="hydrationGlasses">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="imc-advice" id="hydrationAdvice"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-notification" id="toastNotification"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
